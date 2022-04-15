@@ -12,6 +12,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "pets")
 public class Pet {
+    @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;

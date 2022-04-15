@@ -12,6 +12,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "owners")
 public class Owner {
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     int id;
