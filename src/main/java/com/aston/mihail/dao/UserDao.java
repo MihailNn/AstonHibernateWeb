@@ -10,12 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class UserDao implements DaoUser{
-
-    SessionFactory factory = new Configuration()
-            .configure("hibernate.cfg.xml")
-            .addAnnotatedClass(User.class)
-            .buildSessionFactory();
+public class UserDao implements DaoUser {
+    DataSourceHibernate factory;
 
     private static class SingletonHelper {
         private static final UserDao INSTANCE = new UserDao();
@@ -43,9 +39,8 @@ public class UserDao implements DaoUser{
 
     @Override
     public boolean save(User user) throws SQLException {
-
+        Session session = factory.getCurrentSession();
         try {
-            Session session = factory.getCurrentSession();
             session.beginTransaction();
             session.save(user);
             session.getTransaction().commit();
@@ -58,8 +53,8 @@ public class UserDao implements DaoUser{
 
     @Override
     public List<User> findAll() throws SQLException {
+        Session session = factory.getCurrentSession();
         try {
-            Session session = factory.getCurrentSession();
             session.beginTransaction();
             List<User> userList = session.createQuery("from User", User.class)
                     .getResultList();
@@ -75,8 +70,8 @@ public class UserDao implements DaoUser{
 
     @Override
     public boolean update(User user) throws SQLException {
+        Session session = factory.getCurrentSession();
         try {
-            Session session = factory.getCurrentSession();
             session.beginTransaction();
             session.update(user);
             session.getTransaction().commit();
@@ -89,8 +84,8 @@ public class UserDao implements DaoUser{
 
     @Override
     public boolean delete(User user) throws SQLException {
+        Session session = factory.getCurrentSession();
         try {
-            Session session = factory.getCurrentSession();
             session.beginTransaction();
             session.delete(user);
             session.getTransaction().commit();
@@ -103,11 +98,13 @@ public class UserDao implements DaoUser{
 
     public boolean isValid(String login, String password) throws SQLException{
         try {
-            Session session = factory.getCurrentSession();
             session.beginTransaction();
 
-            List<User> users = session.createQuery("from User" + "where login = " + login +
-                    " and pasword = " + password).getResultList();
+            Query query = session.createQuery("from User where " +
+                    "login =: login and password =:password");
+            query.setString("login", login);
+            query.setString("password", password);
+            List<User> users = query.getResultList();
             if (!users.isEmpty()) {
                 return true;
             }
